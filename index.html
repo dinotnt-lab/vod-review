@@ -8,7 +8,9 @@
     <input id="matchinp" type="text" placeholder="Input MCSR match url/id"/>
     <button id="submitbtn">Go</button>
     <button id="play">Play</button>
-    <div id="vodcon"></div>
+    <div id="vodcon">
+        <div id="playerbig" style="width:1600px; height:800px; display:none;"></div>
+    </div>
 <script>
 const input = document.getElementById('matchinp');
 const button = document.getElementById('submitbtn');
@@ -32,7 +34,6 @@ async function run(x) {
 }
 
 async function openvod(vod, data) {
-
     const url = vod[0].url;
 
     const matchStart = data.data.date;
@@ -46,24 +47,21 @@ async function openvod(vod, data) {
 
     console.log(url + '?t=' + Math.floor(vodSeek) + 's');
 
-    const vodcon = document.getElementById('vodcon');
+    const playerDiv = document.getElementById('playerbig');
+    playerDiv.style.display = 'block';
 
-    vodcon.innerHTML = `
-        <div id="playerbig" style="
-            width:1600px;
-            height:800px;
-            display:block;
-            visibility: visible;
-            z-index: 500;
-        "></div>
-    `;
+    // Destroy existing player instance before creating a new one
+    if (player) {
+        player = null;
+        playerDiv.innerHTML = '';
+    }
 
     player = new Twitch.Player("playerbig", {
         width: 1600,
         height: 800,
         video: videoId,
-        time: Math.floor(vodSeek),
-        autoplay: true,
+        time: Math.floor(vodSeek) + 's',
+        autoplay: false,
         parent: [location.hostname],
     });
 
@@ -79,11 +77,9 @@ function playonevod() {
 }
 
 input.addEventListener('input', () => {
-
     const match = input.value.match(
         /^https?:\/\/mcsrranked\.com\/stats\/[^/]+\/([^/?]+)/
     );
-
     if (match) {
         input.value = match[1];
     }
@@ -96,7 +92,7 @@ input.addEventListener('keydown', (e) => {
 });
 
 button.addEventListener('click', () => {
-    run(input.value);
+    run(input.value); 
 });
 
 playbutton.addEventListener('click', () => {
